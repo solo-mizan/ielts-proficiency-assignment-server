@@ -21,6 +21,7 @@ async function run() {
 
         const db = client.db('ielts-job-task');
         const userCollection = db.collection("users");
+        const todoCollection = db.collection("todo");
 
         // store new user email
         app.put('/user/:email', async (req, res) => {
@@ -33,7 +34,62 @@ async function run() {
             };
             const result = await userCollection.updateOne(filter, updateDoc, options);
             res.send = (result);
-        })
+        });
+
+        // update user profile
+        app.put('/profie/:email', async (req, res) => {
+            const email = req.params.email;
+            const body = req.body;
+            const query = { email: email };
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: body
+            };
+            const result = await userCollection.updateOne(query, updateDoc, options);
+            res.send(result);
+        });
+
+        // get user's existing data
+        app.get('/user/:email', async (req, res) => {
+            const email = req.params.email;
+            console.log(email);
+            const query = { email: email };
+            const result = await userCollection.findOne(query);
+            res.send(result);
+        });
+
+        // todo list section =>
+        
+        // get all todo list
+        app.get('/list', async (req, res) => {
+            const query = {};
+            const cursor = todoCollection.find(query);
+            const items = await cursor.toArray();
+            res.send(items);
+        });
+
+        // post a new todo list
+        app.post('/list', async (req, res) => {
+            const newItem = req.body;
+            console.log(newItem);
+            const result = await todoCollection.insertOne(newItem);
+            res.send(result);
+        });
+
+        // isComplete update api 
+        app.put('/list/:id', async (req, res) => {
+            const id = req.params.id;
+            const data = req.body;
+            const filter = { _id: ObjectId(id) };
+            const options = { upsert: true }
+            const updateDocument = {
+                $set: {
+                    isComplete: data.isComplete
+                },
+            };
+            const result = await todoCollection.updateOne(filter, updateDocument, options);
+            res.send(result);
+        });
     }
     finally { }
 }

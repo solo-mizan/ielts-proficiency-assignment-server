@@ -20,8 +20,9 @@ async function run() {
         await client.connect();
 
         const db = client.db('ielts-job-task');
+
         const userCollection = db.collection("users");
-        const todoCollection = db.collection("todo");
+        const todoCollection = db.collection('todo_list');
 
         // store new user email
         app.put('/user/:email', async (req, res) => {
@@ -59,7 +60,6 @@ async function run() {
         });
 
         // todo list section =>
-        
         // get all todo list
         app.get('/list', async (req, res) => {
             const query = {};
